@@ -1,0 +1,294 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-body);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: #07101d;
+  --foreground: #eef3fb;
+  --card: rgba(13, 20, 35, 0.84);
+  --card-foreground: #eef3fb;
+  --popover: rgba(8, 14, 26, 0.96);
+  --popover-foreground: #eef3fb;
+  --primary: #f2ba7b;
+  --primary-foreground: #07101d;
+  --secondary: #15233a;
+  --secondary-foreground: #eef3fb;
+  --muted: #0d1728;
+  --muted-foreground: #96a7be;
+  --accent: #103941;
+  --accent-foreground: #dff8f4;
+  --destructive: #e28073;
+  --border: rgba(163, 181, 210, 0.16);
+  --input: rgba(14, 24, 40, 0.82);
+  --ring: #69d5c3;
+  --chart-1: #82b6ff;
+  --chart-2: #69d5c3;
+  --chart-3: #f2ba7b;
+  --chart-4: #f18d73;
+  --chart-5: #c8d0ff;
+  --radius: 1rem;
+  --sidebar: rgba(13, 20, 35, 0.9);
+  --sidebar-foreground: #eef3fb;
+  --sidebar-primary: #f2ba7b;
+  --sidebar-primary-foreground: #07101d;
+  --sidebar-accent: #15233a;
+  --sidebar-accent-foreground: #eef3fb;
+  --sidebar-border: rgba(163, 181, 210, 0.16);
+  --sidebar-ring: #69d5c3;
+  --signal-amber: #f2ba7b;
+  --signal-sand: #f8e7c8;
+  --signal-cyan: #69d5c3;
+  --signal-blue: #82b6ff;
+}
+
+.dark {
+  --background: #07101d;
+  --foreground: #eef3fb;
+  --card: rgba(13, 20, 35, 0.84);
+  --card-foreground: #eef3fb;
+  --popover: rgba(8, 14, 26, 0.96);
+  --popover-foreground: #eef3fb;
+  --primary: #f2ba7b;
+  --primary-foreground: #07101d;
+  --secondary: #15233a;
+  --secondary-foreground: #eef3fb;
+  --muted: #0d1728;
+  --muted-foreground: #96a7be;
+  --accent: #103941;
+  --accent-foreground: #dff8f4;
+  --destructive: #e28073;
+  --border: rgba(163, 181, 210, 0.16);
+  --input: rgba(14, 24, 40, 0.82);
+  --ring: #69d5c3;
+  --chart-1: #82b6ff;
+  --chart-2: #69d5c3;
+  --chart-3: #f2ba7b;
+  --chart-4: #f18d73;
+  --chart-5: #c8d0ff;
+  --sidebar: rgba(13, 20, 35, 0.9);
+  --sidebar-foreground: #eef3fb;
+  --sidebar-primary: #f2ba7b;
+  --sidebar-primary-foreground: #07101d;
+  --sidebar-accent: #15233a;
+  --sidebar-accent-foreground: #eef3fb;
+  --sidebar-border: rgba(163, 181, 210, 0.16);
+  --sidebar-ring: #69d5c3;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    scrollbar-color: rgba(130, 182, 255, 0.35) rgba(255, 255, 255, 0.04);
+  }
+
+  :where(body, button, input, textarea, select, option, label) {
+    font-family: var(--font-body), sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background:
+      radial-gradient(circle at 12% 12%, rgba(130, 182, 255, 0.14), transparent 28%),
+      radial-gradient(circle at 88% 10%, rgba(242, 186, 123, 0.16), transparent 24%),
+      radial-gradient(circle at 55% 100%, rgba(105, 213, 195, 0.12), transparent 34%),
+      linear-gradient(180deg, #08111e 0%, #060c16 100%);
+    font-kerning: normal;
+    line-height: 1.6;
+    min-height: 100vh;
+    text-rendering: optimizeLegibility;
+  }
+
+  html {
+    @apply scroll-smooth font-sans;
+  }
+
+  body::before {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 72px 72px;
+    content: "";
+    inset: 0;
+    mask-image: radial-gradient(circle at center, black, transparent 78%);
+    opacity: 0.12;
+    pointer-events: none;
+    position: fixed;
+    z-index: -2;
+  }
+
+  body::after {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 14%),
+      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 36%);
+    content: "";
+    inset: 0;
+    mix-blend-mode: screen;
+    opacity: 0.34;
+    pointer-events: none;
+    position: fixed;
+    z-index: -1;
+  }
+
+  ::selection {
+    background: rgba(242, 186, 123, 0.28);
+    color: #fff2dd;
+  }
+
+  ::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(130, 182, 255, 0.28);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+  }
+
+  .rag-widget-reset,
+  .rag-widget-reset :where(div, p, span, button, input, textarea, label, h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-body), sans-serif !important;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-body), sans-serif;
+  }
+
+  .signal-panel {
+    backdrop-filter: blur(20px);
+    background: linear-gradient(180deg, rgba(14, 23, 40, 0.88) 0%, rgba(8, 13, 24, 0.94) 100%);
+    border: 1px solid rgba(163, 181, 210, 0.16);
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .signal-panel-soft {
+    backdrop-filter: blur(18px);
+    background: linear-gradient(180deg, rgba(14, 23, 40, 0.72) 0%, rgba(8, 13, 24, 0.84) 100%);
+    border: 1px solid rgba(163, 181, 210, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .signal-chip {
+    align-items: center;
+    background: rgba(10, 16, 28, 0.6);
+    border: 1px solid rgba(163, 181, 210, 0.16);
+    border-radius: 999px;
+    color: var(--muted-foreground);
+    display: inline-flex;
+    font-family: var(--font-body), sans-serif;
+    font-size: 0.72rem;
+    gap: 0.5rem;
+    letter-spacing: 0.16em;
+    padding: 0.45rem 0.85rem;
+    text-transform: uppercase;
+  }
+
+  .signal-chip-accent {
+    background: rgba(242, 186, 123, 0.12);
+    border-color: rgba(242, 186, 123, 0.32);
+    color: #f7dbb2;
+  }
+
+  .signal-heading {
+    font-family: var(--font-body), sans-serif;
+    font-size: clamp(2.6rem, 5vw, 5.5rem);
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+  }
+
+  .signal-subcopy {
+    color: var(--muted-foreground);
+    line-height: 1.75;
+  }
+
+  .signal-divider {
+    background: linear-gradient(90deg, transparent, rgba(163, 181, 210, 0.24), transparent);
+    height: 1px;
+    width: 100%;
+  }
+
+  .signal-glow {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .signal-glow::after {
+    aspect-ratio: 1;
+    background: radial-gradient(circle, rgba(105, 213, 195, 0.18), transparent 70%);
+    content: "";
+    inset: auto -18% -62% auto;
+    pointer-events: none;
+    position: absolute;
+    width: 52%;
+  }
+
+  .reveal {
+    animation: rise-in 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
