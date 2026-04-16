@@ -110,7 +110,7 @@ export default function CompetitorTable({
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
             ['Rows', filteredData.length, 'Currently visible records'],
-            ['Competitors', totalCompetitors, 'Unique products or games'],
+            ['Competitors', totalCompetitors, 'Unique platforms or products'],
             ['Reports', totalReports, 'Source documents indexed'],
             ['Pricing', entriesWithPricing, 'Rows with explicit price data'],
           ].map(([label, value, helper], index) => (

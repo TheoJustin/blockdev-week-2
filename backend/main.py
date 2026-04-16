@@ -32,6 +32,7 @@ app.add_middleware(
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 PINECONE_INDEX = os.getenv("PINECONE_INDEX", "competitor-analysis")
 
+
 def ensure_index_exists():
     existing = [i.name for i in pc.list_indexes()]
     if PINECONE_INDEX not in existing:
@@ -42,31 +43,69 @@ def ensure_index_exists():
             spec=ServerlessSpec(cloud="aws", region="us-east-1"),
         )
 
+
+def normalize_text_block(value: str) -> str:
+    return "\n".join(
+        line for line in (" ".join(raw.split()) for raw in value.splitlines()) if line
+    ).strip()
+
+
+def is_references_page(value: str) -> bool:
+    lines = [line.strip().lower() for line in value.splitlines() if line.strip()]
+    return bool(lines and lines[0] == "references")
+
+
+def build_extraction_text(docs) -> str:
+    pages: List[str] = []
+
+    for page_number, doc in enumerate(docs, start=1):
+        content = normalize_text_block(doc.page_content)
+        if not content:
+            continue
+
+        if is_references_page(content):
+            break
+
+        pages.append(f"[Page {page_number}]\n{content}")
+
+    return "\n\n".join(pages)
+
+
+def clean_optional_text(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+
+    cleaned = " ".join(value.split()).strip()
+    return cleaned or None
+
+
 # --- 1. Pydantic Models ---
 class FeatureAnalysis(BaseModel):
     competitor_name: str = Field(
-        description="The specific name of the game or product (e.g., 'Honor of Kings', 'Free Fire'). DO NOT: Send Battle Royale Games, Send a specific game!"
+        description="The canonical name of the specific platform, product, or service explicitly discussed in the report (e.g., 'Google Meet', 'Microsoft Teams', 'Zoom'). Never use a generic market label such as 'video conferencing platforms' or 'e-learning tools'."
     )
     feature_name: str = Field(
-        description="A specific in-game mechanic, software functionality, or product capability (e.g., '5v5 Multiplayer', 'Gacha System', 'Voice Chat'). STRICT RULE: DO NOT include game genres (like 'MMORPG'), market metrics (like 'Downloads Growth'), or business strategies. If no specific software feature is mentioned, do not extract it."
+        description="A concrete capability, plan-specific offering, limit, or differentiator tied to that competitor (e.g., 'Free tier: up to 100 participants for 1 hour', 'Speech-recognition subtitles', 'Chat, calls, and document sharing/editing'). Do not use market trends, generic themes, or industry categories as features."
     )
     price: Optional[str] = Field(
-        default=None, 
-        description="Cost, pricing model, or monetization strategy (e.g., 'Free-to-play', 'In-app purchases', '$4.99'). Leave null if not explicitly mentioned."
+        default=None,
+        description="Exact price, billing phrase, or plan label explicitly stated in the source (e.g., 'Free', 'USD 8 per active user/month', '139.90 EUR / year/license'). Leave null if not explicitly mentioned."
     )
     advantages: Optional[str] = Field(
-        default=None, 
-        description="Key strengths, pros, or positive player feedback specifically related to the game or feature."
+        default=None,
+        description="An explicit source-grounded strength, convenience, or benefit tied to this competitor or feature. Leave null if the source does not state one."
     )
     disadvantages: Optional[str] = Field(
-        default=None, 
-        description="Key weaknesses, cons, or negative player feedback (e.g., 'High learning curve', 'Pay-to-win')."
+        default=None,
+        description="An explicit source-grounded limitation, drawback, or constraint tied to this competitor or feature (e.g., 'Free tier limited to 1 hour'). Leave null if the source does not state one."
     )
+
 
 class ExtractionResult(BaseModel):
     results: List[FeatureAnalysis] = Field(
-        description="List of extracted competitor features. Only include entries that have actual software/game mechanics as features."
+        description="List of SQL-ready competitor rows extracted from the report. Only include rows with a named competitor and a concrete capability, plan detail, limit, price point, or explicit advantage/disadvantage."
     )
+
 
 class SQLResponse(BaseModel):
     sql: str
@@ -89,40 +128,97 @@ async def process_pdf(file: UploadFile = File(...)):
         docs = loader.load()
         os.remove(tmp_path)
 
-        pdf_text = "\n".join([doc.page_content for doc in docs])
+        extraction_text = build_extraction_text(docs)
+        if not extraction_text:
+            extraction_text = "\n".join([doc.page_content for doc in docs])
 
-        # 2. Structured SQL extraction (unchanged)
+        # 2. Structured SQL extraction
         llm = ChatOpenAI(model="gpt-4o", temperature=0)
         structured_llm = llm.with_structured_output(ExtractionResult)
 
         template = """
-        You are an expert Data Engineer extracting competitor product features from a market report.
-        
+        You are an expert data extraction system that converts competitor comparison PDFs into SQL-ready rows.
+
+        The uploaded files are research or comparison reports about software platforms, SaaS tools, digital services, or products.
+        Your output feeds a competitor analysis table used for structured SQL questions.
+
+        Extract rows that help answer questions like:
+        - What capabilities does each platform provide?
+        - What plan tiers, participant limits, storage limits, support levels, or usage limits are mentioned?
+        - What prices or billing phrases are stated?
+        - What explicit advantages or disadvantages are stated for a platform, plan, or feature?
+
         CRITICAL RULES:
-        1. Extract ACTUAL PRODUCT FEATURES or GAME MECHANICS (e.g., 'Auto-combat', 'Guild System', 'Cross-platform play').
-        2. EXCLUSION RULE: DO NOT extract market metrics, genres, or business performance as features. Terms like 'MMORPG', 'Downloads Growth', and 'Market Penetration' ARE NOT FEATURES. 
-        3. If a section of the text only discusses market trends without mentioning specific product functionalities, IGNORE IT. Do not force an extraction.
-        4. Extract all values in their original English language. Translate them if they're not.
-        5. If a field is missing, leave it as null.
-        6. If a competitor has multiple distinct features, create a separate entry for each feature.
-        7. As a competitor name, Please specify a specific game rather than saying a general genre for example: Battle Royale Games
+        1. competitor_name must be the canonical product or platform name explicitly mentioned in the source.
+           Good: Google Meet, Microsoft Teams, Zoom
+           Bad: E-learning platforms, Video conferencing software, Business Standard
+        2. feature_name must be a concrete capability, plan-specific offer, usage limit, or differentiator.
+           Good: Free tier: up to 100 participants for 1 hour
+                 Speech-recognition subtitles
+                 Chat, calls, and document sharing/editing
+                 Business plan: recording transcripts and managed domains
+           Bad: Online teaching, COVID-19 crisis, Market growth, Distance learning
+        3. Include plan-specific rows when a named tier has materially different pricing or capabilities.
+           Keep the platform name in competitor_name and put the tier details in feature_name.
+        4. Put the exact price or plan label in price when it is explicit in the source.
+           Examples: Free, Paid version, USD 8 per active user/month, 139.90 EUR / year/license
+        5. advantages and disadvantages must be source-grounded.
+           Only include them when the document explicitly states a benefit, limitation, or constraint.
+           Do not invent disadvantages from missing information.
+        6. Do not create rows for generic e-learning pros/cons unless they are explicitly tied to a named competitor.
+        7. Ignore references, citations, URLs, figure captions, DOI/ORCID metadata, and duplicated boilerplate.
+        8. Translate non-English text to clear English when necessary.
+        9. If a competitor has multiple distinct features or plan tiers, create separate rows.
+        10. If a section does not contain a concrete competitor capability, plan, price, explicit advantage, or explicit disadvantage, skip it.
+        11. Prefer concise, SQL-friendly field values over long paragraphs.
 
         <input_text>
         {text}
         </input_text>
         """
         chain = PromptTemplate.from_template(template) | structured_llm
-        response_data = chain.invoke({"text": pdf_text})
+        response_data = chain.invoke({"text": extraction_text})
 
         safe_pdf_name = file.filename.replace("'", "''")
 
         sql_statements = []
+        seen_rows = set()
         for row in response_data.results:
-            comp_name = row.competitor_name.replace("'", "''") if row.competitor_name else ""
-            feat_name = row.feature_name.replace("'", "''") if row.feature_name else ""
-            price     = f"'{row.price.replace(chr(39), chr(39)*2)}'" if row.price else "NULL"
-            adv       = f"'{row.advantages.replace(chr(39), chr(39)*2)}'" if row.advantages else "NULL"
-            disadv    = f"'{row.disadvantages.replace(chr(39), chr(39)*2)}'" if row.disadvantages else "NULL"
+            competitor_name = clean_optional_text(row.competitor_name)
+            feature_name = clean_optional_text(row.feature_name)
+            price_value = clean_optional_text(row.price)
+            advantages_value = clean_optional_text(row.advantages)
+            disadvantages_value = clean_optional_text(row.disadvantages)
+
+            if not competitor_name or not feature_name:
+                continue
+
+            dedupe_key = (
+                competitor_name.casefold(),
+                feature_name.casefold(),
+                (price_value or "").casefold(),
+            )
+            if dedupe_key in seen_rows:
+                continue
+            seen_rows.add(dedupe_key)
+
+            comp_name = competitor_name.replace("'", "''")
+            feat_name = feature_name.replace("'", "''")
+            price = (
+                f"'{price_value.replace(chr(39), chr(39) * 2)}'"
+                if price_value
+                else "NULL"
+            )
+            adv = (
+                f"'{advantages_value.replace(chr(39), chr(39) * 2)}'"
+                if advantages_value
+                else "NULL"
+            )
+            disadv = (
+                f"'{disadvantages_value.replace(chr(39), chr(39) * 2)}'"
+                if disadvantages_value
+                else "NULL"
+            )
             sql_statements.append(
                 f"INSERT INTO competitor_analysis (competitor_name, feature_name, price, advantages, disadvantages, pdf_name) "
                 f"VALUES ('{comp_name}', '{feat_name}', {price}, {adv}, {disadv}, '{safe_pdf_name}');"

@@ -180,7 +180,7 @@ export default function RagEvalPage() {
               id="rag-eval-query"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="e.g. What mechanics make PUBG feel strategically tense?"
+              placeholder="e.g. What does the paper say about Google Meet pricing tiers?"
               className="min-h-[7.5rem] border-white/10 bg-white/[0.04]"
             />
           </div>

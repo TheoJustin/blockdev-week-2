@@ -33,9 +33,9 @@ export default function RagChatPage() {
   };
 
   const prompts = [
-    'What mechanics make PUBG strategically tense according to the uploaded report?',
-    'Which passages discuss positive reinforcement loops or battle pass systems?',
-    'What does the source text say about map pressure and player conflict?',
+    'According to the report, how do Google Meet, Microsoft Teams, and Zoom differ?',
+    'What does the document say about Google Meet pricing tiers and participant limits?',
+    'What advantages and disadvantages of e-learning are mentioned in the paper?',
   ];
 
   return (
@@ -117,8 +117,8 @@ export default function RagChatPage() {
           <ChatbotRagWidget
             onSendMessage={handleMessage}
             title="RAG Assistant"
-            placeholder="e.g. What loyalty signals show up in the strategy segment?"
-            initialMessage="I’ve indexed the uploaded competitor documents. Ask me something that needs source-grounded retrieval."
+            placeholder="e.g. What does the paper say about Zoom participant limits and pricing?"
+            initialMessage="I’ve indexed the uploaded research PDFs. Ask me something that needs source-grounded retrieval from the document text."
             className="rag-widget-reset"
           />
         </div>

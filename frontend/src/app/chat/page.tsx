@@ -42,9 +42,9 @@ type ToolPartState = QueryPostgresToolPart['state'];
 
 const RUNNING_STATES: ToolPartState[] = ['input-streaming', 'input-available'];
 const SUGGESTIONS = [
-  "Which competitors mention monetization advantages?",
-  "Show me features associated with PUBG and summarize their advantages.",
-  "Which products mention voice chat or multiplayer coordination?",
+  'Compare Google Meet, Microsoft Teams, and Zoom based on extracted rows.',
+  'Which competitors mention recording, chat, or document sharing?',
+  'Show pricing and participant-limit rows from the uploaded reports.',
 ];
 
 function QueryPostgresPart({ part }: { part: QueryPostgresToolPart }) {
@@ -253,8 +253,8 @@ export default function ChatPage() {
                   Start with a precise question.
                 </p>
                 <p className="mt-3 max-w-lg text-sm leading-6 text-muted-foreground">
-                  Try asking about pricing, advantages, disadvantages, or which
-                  competitors mention a certain feature.
+                  Try asking about participant limits, pricing tiers, specific
+                  capabilities, or which competitors mention a certain feature.
                 </p>
               </div>
             ) : (
@@ -283,7 +283,7 @@ export default function ChatPage() {
               <Input
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Ask about competitors, features, or pricing..."
+                placeholder="Ask about platforms, plans, pricing, or feature comparisons..."
                 className="h-[52px] rounded-[22px] border-white/10 bg-white/[0.04] px-5"
                 disabled={isLoading}
               />

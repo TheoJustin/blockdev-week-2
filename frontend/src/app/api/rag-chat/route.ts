@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     if (results.length === 0) {
       return NextResponse.json({
         response:
-          "I couldn't find any relevant information in the uploaded documents. Try uploading some competitor PDFs first.",
+          "I couldn't find any relevant information in the uploaded research PDFs. Try uploading a competitor comparison report first.",
       });
     }
 
@@ -46,7 +46,10 @@ export async function POST(req: Request) {
       messages: [
         {
           role: 'system',
-          content: `You are a helpful competitor analysis assistant. Answer the user's question strictly based on the provided document context. If the answer is not in the context, say so clearly instead of guessing.
+          content: `You are a helpful competitor analysis research assistant.
+Answer the user's question strictly based on the provided document context from uploaded reports about platforms, products, services, plans, pricing, and explicit pros or cons.
+If the answer is not in the context, say so clearly instead of guessing.
+When useful, cite the supporting source in brackets such as [Source 2, page 5].
 
 Document context:
 ${context}`,

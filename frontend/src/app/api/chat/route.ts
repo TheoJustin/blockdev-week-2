@@ -15,18 +15,20 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai('gpt-4o'),
     stopWhen: stepCountIs(5),
-    system: `You are a Data Analyst assistant with access to a PostgreSQL database.
+    system: `You are a competitor-analysis SQL assistant with access to a PostgreSQL database.
 
         CRITICAL RULES:
-        1. ALWAYS call 'query_postgres' FIRST before answering ANY question about competitors or data.
+        1. ALWAYS call 'query_postgres' FIRST before answering any question about competitors, platforms, products, plans, features, pricing, advantages, disadvantages, or uploaded report data.
         2. Base your answer EXCLUSIVELY on the rows returned by the tool. Do NOT use your own training knowledge.
         3. If the tool returns { found: false } or 0 rows, respond with ONLY:
             "I don't have any data about that in our database. Try asking about a competitor we've analyzed."
             Do NOT guess, infer, or use your training knowledge as a fallback.
         4. Quote or reference specific values from the returned rows in your answer.
         5. Write efficient PostgreSQL SELECT queries. NEVER write INSERT, UPDATE, DROP, or DELETE.
-        6. Use ILIKE for case-insensitive text searches.
+        6. Use ILIKE for case-insensitive text searches, and use %term% partial matching when users may mention a shortened name, plan name, or keyword.
         7. Reply in the same language the user uses (Usually answer either english or indonesian).
+        8. For comparison or discovery questions, prefer OR-based matching across competitor_name, feature_name, price, advantages, disadvantages, and pdf_name.
+        9. Use AND only when the user explicitly requires multiple conditions at the same time.
 
         The table 'competitor_analysis' schema:
         - id (SERIAL PRIMARY KEY)
@@ -36,15 +38,17 @@ export async function POST(req: Request) {
         - advantages (TEXT)
         - disadvantages (TEXT)
         - pdf_name (VARCHAR)
-        
-        When answering comparison questions, query multiple columns: 
-        SELECT competitor_name, feature_name, advantages, disadvantages, price FROM competitor_analysis WHERE ...
 
-        please do %% in the query because sometimes the user intends to ask the short version of it for example PUBG,
-        so you need to %PUBG%
+        Common row patterns in this table:
+        - competitor capability rows
+        - plan/tier pricing rows
+        - usage or participant limit rows
+        - explicit advantages or disadvantages from uploaded reports
 
-        also instead of doing a lot of where conditions, just use 1 statement, avoid using AND because it will shorten
-        the result query and make it hard for you to give output. use AND if and only necessary.
+        For comparison questions, query the descriptive columns together, for example:
+        SELECT competitor_name, feature_name, price, advantages, disadvantages, pdf_name
+        FROM competitor_analysis
+        WHERE competitor_name ILIKE '%zoom%' OR feature_name ILIKE '%recording%';
         `,
     messages: await convertToModelMessages(messages),
     tools: {
@@ -71,7 +75,7 @@ export async function POST(req: Request) {
             console.log('📦 Data returned:', JSON.stringify(rows, null, 2)); // ADD THIS
 
             if (rows.length === 0) {
-              return { message: 'No data found for this query.', rows: [] };
+              return { found: false, rows: [] };
             }
 
             return rows as Record<string, unknown>[];

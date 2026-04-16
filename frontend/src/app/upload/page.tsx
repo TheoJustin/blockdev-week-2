@@ -50,10 +50,10 @@ export default function UploadPage() {
 
   const parseSqlToLines = (sql: string): string[] => {
     return sql
-      .split(/\);\s*\n/g)
+      .split(/;\s*\n+/g)
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
-      .map((line) => line + ');');
+      .map((line) => (line.endsWith(';') ? line : `${line};`));
   };
 
   const handleExtract = async () => {
