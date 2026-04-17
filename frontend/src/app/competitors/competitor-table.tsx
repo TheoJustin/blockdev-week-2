@@ -180,7 +180,7 @@ export default function CompetitorTable({
                     key={row.id}
                     className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5"
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <h2 className="text-lg font-semibold tracking-[-0.03em] text-foreground">
                           {row.competitor_name}
@@ -190,16 +190,16 @@ export default function CompetitorTable({
                         </p>
                       </div>
                       {row.price ? (
-                        <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-medium text-[var(--signal-sand)]">
+                        <span className="inline-block max-w-full rounded-[18px] border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs leading-5 font-medium whitespace-normal break-words text-[var(--signal-sand)]">
                           {row.price}
                         </span>
                       ) : null}
                     </div>
 
                     {row.pdf_name && (
-                      <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-muted-foreground">
+                      <div className="mt-4 inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-muted-foreground">
                         <FileText className="h-3.5 w-3.5" />
-                        {row.pdf_name}
+                        <span className="break-all">{row.pdf_name}</span>
                       </div>
                     )}
 
@@ -222,22 +222,22 @@ export default function CompetitorTable({
               </div>
 
               <div className="hidden overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] lg:block">
-                <Table className="table-fixed">
+                <Table className="min-w-[1040px] table-fixed">
                   <TableHeader>
                     <TableRow className="border-white/10 hover:bg-transparent">
-                      <TableHead className="w-[18%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      <TableHead className="w-[17%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                         Competitor
                       </TableHead>
-                      <TableHead className="w-[17%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      <TableHead className="w-[19%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                         Feature
                       </TableHead>
-                      <TableHead className="w-[12%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      <TableHead className="w-[16%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                         Price
                       </TableHead>
-                      <TableHead className="w-[26%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      <TableHead className="w-[24%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                         Advantages
                       </TableHead>
-                      <TableHead className="w-[27%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      <TableHead className="w-[24%] px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                         Disadvantages
                       </TableHead>
                     </TableRow>
@@ -254,31 +254,31 @@ export default function CompetitorTable({
                               {row.competitor_name}
                             </div>
                             {row.pdf_name && (
-                              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-muted-foreground">
+                              <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-muted-foreground">
                                 <FileText className="h-3.5 w-3.5" />
-                                <span className="truncate" title={row.pdf_name}>
+                                <span className="truncate max-w-[10rem]" title={row.pdf_name}>
                                   {row.pdf_name}
                                 </span>
                               </div>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="px-5 py-5 align-top whitespace-normal text-[var(--signal-cyan)]">
+                        <TableCell className="px-5 py-5 align-top whitespace-normal break-words text-[var(--signal-cyan)]">
                           {row.feature_name}
                         </TableCell>
-                        <TableCell className="px-5 py-5 align-top">
+                        <TableCell className="px-5 py-5 align-top whitespace-normal">
                           {row.price ? (
-                            <span className="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-medium text-[var(--signal-sand)]">
+                            <span className="inline-block max-w-full rounded-[18px] border border-white/10 bg-white/[0.05] px-3 py-1.5 text-left text-xs leading-5 font-medium whitespace-normal break-words text-[var(--signal-sand)]">
                               {row.price}
                             </span>
                           ) : (
                             <span className="text-sm text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                        <TableCell className="px-5 py-5 align-top whitespace-normal text-sm leading-7 text-muted-foreground">
+                        <TableCell className="px-5 py-5 align-top whitespace-normal break-words text-sm leading-7 text-muted-foreground">
                           {row.advantages || '—'}
                         </TableCell>
-                        <TableCell className="px-5 py-5 align-top whitespace-normal text-sm leading-7 text-muted-foreground">
+                        <TableCell className="px-5 py-5 align-top whitespace-normal break-words text-sm leading-7 text-muted-foreground">
                           {row.disadvantages || '—'}
                         </TableCell>
                       </TableRow>

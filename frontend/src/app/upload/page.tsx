@@ -312,7 +312,7 @@ export default function UploadPage() {
                 </div>
 
                 <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03]">
-                  <Table className="table-fixed">
+                  <Table className="min-w-[760px] table-fixed">
                     <TableHeader>
                       <TableRow className="border-white/10 hover:bg-transparent">
                         <TableHead className="w-16 px-5 py-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
@@ -332,7 +332,7 @@ export default function UploadPage() {
                           <TableCell className="px-5 py-4 align-top font-mono text-xs text-muted-foreground">
                             {index + 1}
                           </TableCell>
-                          <TableCell className="px-5 py-4 font-mono text-xs leading-6 whitespace-pre-wrap text-foreground">
+                          <TableCell className="px-5 py-4 font-mono text-xs leading-6 whitespace-pre-wrap break-all text-foreground">
                             {line}
                           </TableCell>
                         </TableRow>

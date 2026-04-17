@@ -199,6 +199,26 @@
   .rag-widget-reset :where(div, p, span, button, input, textarea, label, h1, h2, h3, h4, h5, h6) {
     font-family: var(--font-body), sans-serif !important;
   }
+
+  .rag-widget-reset {
+    display: flex;
+    inset: auto !important;
+    justify-content: flex-end;
+    position: static !important;
+    width: 100%;
+    z-index: auto !important;
+  }
+
+  .rag-widget-reset > button {
+    margin-left: auto;
+  }
+
+  .rag-widget-reset > div {
+    height: min(34rem, 72vh) !important;
+    margin-left: auto;
+    max-width: 100% !important;
+    width: min(100%, 34rem) !important;
+  }
 }
 
 @layer utilities {
